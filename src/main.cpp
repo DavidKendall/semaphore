@@ -125,6 +125,7 @@ static void appTaskLED1(void *pdata) {
   }
 }
 
+
 static void appTaskLED2(void *pdata) {
   DigitalOut led2(LED2);
 	
@@ -135,6 +136,7 @@ static void appTaskLED2(void *pdata) {
 		}
   } 
 }
+
 
 static void appTaskCOUNT1(void *pdata) {  
 	uint8_t status;
@@ -152,6 +154,7 @@ static void appTaskCOUNT1(void *pdata) {
   } 
 }
 
+
 static void appTaskCOUNT2(void *pdata) {
 	uint8_t status;
 	
@@ -167,6 +170,7 @@ static void appTaskCOUNT2(void *pdata) {
 		OSTimeDlyHMSM(0,0,0,2);
   } 
 }
+
 
 static void display(uint8_t id, uint32_t value) {
     d->setCursor(2, id * d->getStringHeight("X"));
