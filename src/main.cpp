@@ -10,10 +10,10 @@
 */
 
 typedef enum {
-  APP_TASK_LED1_PRIO = 4,
-  APP_TASK_LED2_PRIO,
-	APP_TASK_COUNT1_PRIO,
-	APP_TASK_COUNT2_PRIO
+	APP_TASK_COUNT1_PRIO = 4,
+	APP_TASK_COUNT2_PRIO,
+  APP_TASK_LED1_PRIO,
+  APP_TASK_LED2_PRIO
 } taskPriorities_t;
 
 /*
@@ -57,6 +57,8 @@ static uint32_t count1 = 0;
 static uint32_t count2 = 0;
 
 static OS_EVENT *lcdSem;
+static OS_EVENT *count1Done;
+static OS_EVENT *count2Done;
 
 /*
 *********************************************************************************************************
@@ -95,6 +97,8 @@ int main() {
                APP_TASK_COUNT2_PRIO);
 							 
 	lcdSem = OSSemCreate(1);
+	count1Done = OSSemCreate(0);
+	count2Done = OSSemCreate(1);
 
 							 
   /* Start the OS */
@@ -113,8 +117,6 @@ int main() {
 static void appTaskLED1(void *pdata) {
   DigitalOut led1(LED1);
 	
-  /* Start the OS ticker -- must be done in the highest priority task */
-  SysTick_Config(SystemCoreClock / OS_TICKS_PER_SEC);
   
   /* Task main loop */
   while (true) {
@@ -139,16 +141,21 @@ static void appTaskLED2(void *pdata) {
 static void appTaskCOUNT1(void *pdata) {  
 	uint8_t status;
 	
+  /* Start the OS ticker -- must be done in the highest priority task */
+  SysTick_Config(SystemCoreClock / OS_TICKS_PER_SEC);
+
   while (true) {
+		OSSemPend(count2Done, 0, &status);
 		OSSemPend(lcdSem, 0, &status);
     count1 += 1;
     display(1, count1);
     total += 1;
 		status = OSSemPost(lcdSem);
+		status = OSSemPost(count1Done);
     if ((count1 + count2) != total) {
       flashing = true;
     }
-		OSTimeDlyHMSM(0,0,0,2);
+		OSTimeDlyHMSM(0,0,0,5);
   } 
 }
 
@@ -156,15 +163,17 @@ static void appTaskCOUNT2(void *pdata) {
 	uint8_t status;
 	
   while (true) {
+		OSSemPend(count1Done, 0, &status);
 		OSSemPend(lcdSem, 0, &status);
     count2 += 1;
     display(2, count2);
     total += 1;
 		status = OSSemPost(lcdSem);		
+		status = OSSemPost(count2Done);
     if ((count1 + count2) != total) {
       flashing = true;
     }
-		OSTimeDlyHMSM(0,0,0,2);
+		OSTimeDlyHMSM(0,0,0,5);
   } 
 }
 
