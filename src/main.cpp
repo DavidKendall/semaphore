@@ -155,7 +155,7 @@ static void appTaskCOUNT1(void *pdata) {
     if ((count1 + count2) != total) {
       flashing = true;
     }
-		OSTimeDlyHMSM(0,0,0,5);
+		OSTimeDlyHMSM(0,0,0,2);
   } 
 }
 
@@ -173,7 +173,7 @@ static void appTaskCOUNT2(void *pdata) {
     if ((count1 + count2) != total) {
       flashing = true;
     }
-		OSTimeDlyHMSM(0,0,0,5);
+		OSTimeDlyHMSM(0,0,0,2);
   } 
 }
 
