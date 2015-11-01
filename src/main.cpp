@@ -171,8 +171,6 @@ static void appTaskLED1(void *pdata) {
 		if (flashing[0]) {
       led1 = !led1;
 		}
-		d->setCursor(2,42);
-		d->printf("(LED1) F: %s, D: %04d", flashing[0] ? " ON" : "OFF", flashingDelay[0]);
     OSTimeDly(flashingDelay[0]);
   }
 }
@@ -183,8 +181,6 @@ static void appTaskLED2(void *pdata) {
 		if (flashing[1]) {
       led2 = !led2;
 		}
-		d->setCursor(2,52);
-		d->printf("(LED2) F: %s, D: %04d", flashing[1] ? " ON" : "OFF", flashingDelay[1]);
     OSTimeDly(flashingDelay[1]);
   } 
 }
