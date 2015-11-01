@@ -56,7 +56,6 @@ static uint32_t total = 0;
 static uint32_t count1 = 0;
 static uint32_t count2 = 0;
 
-static OS_EVENT *lcdSem;
 static OS_EVENT *count1Done;
 static OS_EVENT *count2Done;
 
@@ -96,7 +95,6 @@ int main() {
                (OS_STK *)&appTaskCOUNT2Stk[APP_TASK_COUNT2_STK_SIZE - 1],
                APP_TASK_COUNT2_PRIO);
 							 
-	lcdSem = OSSemCreate(1);
 	count1Done = OSSemCreate(0);
 	count2Done = OSSemCreate(1);
 
@@ -146,11 +144,9 @@ static void appTaskCOUNT1(void *pdata) {
 
   while (true) {
 		OSSemPend(count2Done, 0, &status);
-		OSSemPend(lcdSem, 0, &status);
     count1 += 1;
     display(1, count1);
     total += 1;
-		status = OSSemPost(lcdSem);
 		status = OSSemPost(count1Done);
     if ((count1 + count2) != total) {
       flashing = true;
@@ -164,11 +160,9 @@ static void appTaskCOUNT2(void *pdata) {
 	
   while (true) {
 		OSSemPend(count1Done, 0, &status);
-		OSSemPend(lcdSem, 0, &status);
     count2 += 1;
     display(2, count2);
     total += 1;
-		status = OSSemPost(lcdSem);		
 		status = OSSemPost(count2Done);
     if ((count1 + count2) != total) {
       flashing = true;
