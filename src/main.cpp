@@ -49,6 +49,7 @@ static void appTaskLED2(void *pdata);
 *********************************************************************************************************
 */
 
+
 typedef enum {
 	JLEFT = 0,
 	JRIGHT,
@@ -74,8 +75,8 @@ static DigitalIn buttons[] = {P5_0, P5_4, P5_2, P5_1}; // LEFT, RIGHT, UP, DOWN
 static AnalogIn potentiometer(P0_23);
 static Display *d = Display::theDisplay();
 
-static bool flashing = false;
-static int32_t flashingDelay = FLASH_INITIAL_DELAY;
+static bool flashing[2] = {false, false};
+static int32_t flashingDelay[2] = {FLASH_INITIAL_DELAY, FLASH_INITIAL_DELAY};
 
 /*
 *********************************************************************************************************
@@ -136,15 +137,15 @@ static void appTaskButtons(void *pdata) {
   /* Task main loop */
   while (true) {
     if (buttonPressedAndReleased(JLEFT)) {
-			flashing = false;
+			flashing[0] = !flashing[0];
 		}
 		else if (buttonPressedAndReleased(JRIGHT)) {
-			flashing = true;
+			flashing[1] = !flashing[1];
 		}
-		else if (flashing && buttonPressedAndReleased(JUP)) {
+		else if (flashing[0] && buttonPressedAndReleased(JUP)) {
 			decDelay();
 		}
-		else if (flashing && buttonPressedAndReleased(JDOWN)) {
+		else if (flashing[0] && buttonPressedAndReleased(JDOWN)) {
 			incDelay();
 		}
     OSTimeDlyHMSM(0,0,0,100);
@@ -157,6 +158,7 @@ static void appTaskPot(void *pdata) {
 	d->drawRect(109, 12, 102, 10, BLACK);
   while (true) {
 		potVal = 1.0F - potentiometer.read();
+		flashingDelay[1] = int(potVal * 1000);
     d->setCursor(2, 12);
 		d->printf("Pot value : %1.2f\n", potVal);	
     barChart(potVal);		
@@ -166,20 +168,24 @@ static void appTaskPot(void *pdata) {
 
 static void appTaskLED1(void *pdata) {
   while (true) {
-		if (flashing) {
+		if (flashing[0]) {
       led1 = !led1;
 		}
-    OSTimeDly(flashingDelay);
+		d->setCursor(2,42);
+		d->printf("(LED1) F: %s, D: %04d", flashing[0] ? " ON" : "OFF", flashingDelay[0]);
+    OSTimeDly(flashingDelay[0]);
   }
 }
 
 
 static void appTaskLED2(void *pdata) {
   while (true) {
-		if (flashing) {
+		if (flashing[1]) {
       led2 = !led2;
 		}
-    OSTimeDly(flashingDelay);
+		d->setCursor(2,52);
+		d->printf("(LED2) F: %s, D: %04d", flashing[1] ? " ON" : "OFF", flashingDelay[1]);
+    OSTimeDly(flashingDelay[1]);
   } 
 }
 
@@ -210,20 +216,20 @@ bool buttonPressedAndReleased(buttonId_t b) {
 }
 
 void incDelay(void) {
-	if (flashingDelay + FLASH_DELAY_STEP > FLASH_MAX_DELAY) {
-		flashingDelay = FLASH_MAX_DELAY;
+	if (flashingDelay[0] + FLASH_DELAY_STEP > FLASH_MAX_DELAY) {
+		flashingDelay[0] = FLASH_MAX_DELAY;
 	}
 	else {
-		flashingDelay += FLASH_DELAY_STEP;
+		flashingDelay[0] += FLASH_DELAY_STEP;
 	}
 }
 
 void decDelay(void) {
-	if (flashingDelay - FLASH_DELAY_STEP < FLASH_MIN_DELAY) {
-		flashingDelay = FLASH_MIN_DELAY;
+	if (flashingDelay[0] - FLASH_DELAY_STEP < FLASH_MIN_DELAY) {
+		flashingDelay[0] = FLASH_MIN_DELAY;
 	}
 	else {
-		flashingDelay -= FLASH_DELAY_STEP;
+		flashingDelay[0] -= FLASH_DELAY_STEP;
 	}
 }
 	
