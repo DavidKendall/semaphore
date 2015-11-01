@@ -92,7 +92,7 @@ int main() {
 	d->fillScreen(WHITE);
 	d->setTextColor(BLACK, WHITE);
   d->setCursor(2, 2);
-	d->printf("EN0572 Lab 06");
+	d->printf("EN0572 Lab 07");
 
   /* Initialise the OS */
   OSInit();                                                   
